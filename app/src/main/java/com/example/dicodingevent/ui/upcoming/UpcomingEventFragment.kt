@@ -13,21 +13,12 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dicodingevent.R
-import com.example.dicodingevent.databinding.FragmentTransformBinding
+import com.example.dicodingevent.databinding.FragmentUpcomingBinding
 import com.example.dicodingevent.databinding.ItemTransformBinding
 
-/**
- * Fragment that demonstrates a responsive layout pattern where the format of the content
- * transforms depending on the size of the screen. Specifically this Fragment shows items in
- * the [RecyclerView] using LinearLayoutManager in a small screen
- * and shows items using GridLayoutManager in a large screen.
- */
 class UpcomingEventFragment : Fragment() {
 
-    private var _binding: FragmentTransformBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    private var _binding: FragmentUpcomingBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -35,14 +26,14 @@ class UpcomingEventFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val transformViewModel = ViewModelProvider(this).get(UpcomingEventViewModel::class.java)
-        _binding = FragmentTransformBinding.inflate(inflater, container, false)
+        val viewModel = ViewModelProvider(this).get(UpcomingEventViewModel::class.java)
+        _binding = FragmentUpcomingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val recyclerView = binding.recyclerviewTransform
+        val recyclerView = binding.recyclerviewUpcoming
         val adapter = TransformAdapter()
         recyclerView.adapter = adapter
-        transformViewModel.texts.observe(viewLifecycleOwner) {
+        viewModel.texts.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
         return root
@@ -83,14 +74,14 @@ class UpcomingEventFragment : Fragment() {
         )
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
-            val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context))
+            val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return TransformViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: TransformViewHolder, position: Int) {
             holder.textView.text = getItem(position)
             holder.imageView.setImageDrawable(
-                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position], null)
+                ResourcesCompat.getDrawable(holder.imageView.resources, drawables[position % drawables.size], null)
             )
         }
     }
