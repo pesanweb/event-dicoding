@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dicodingevent.data.retrofit.ApiConfig
 import com.example.dicodingevent.databinding.FragmentUpcomingBinding
-import com.example.dicodingevent.ui.adapter.EventAdapter
+import com.example.dicodingevent.ui.EventAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,20 +43,20 @@ class UpcomingEventFragment : Fragment() {
     }
 
     private fun fetchUpcomingEvents() {
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar?.visibility = View.VISIBLE
         lifecycleScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
                     ApiConfig.getApiService().getEvents(active = 1)
                 }
-                binding.progressBar.visibility = View.GONE
+                binding.progressBar?.visibility = View.GONE
                 if (!response.error) {
                     eventAdapter.submitList(response.listEvents)
                 } else {
                     Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
-                binding.progressBar.visibility = View.GONE
+                binding.progressBar?.visibility = View.GONE
                 Toast.makeText(requireContext(), "Gagal memuat data: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         }
