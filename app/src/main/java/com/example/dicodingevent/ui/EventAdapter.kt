@@ -3,6 +3,7 @@ package com.example.dicodingevent.ui
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -26,7 +27,10 @@ class EventAdapter : ListAdapter<ListEventsItem, EventAdapter.EventViewHolder>(D
     class EventViewHolder(private val binding: ItemEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: ListEventsItem) {
             binding.tvEventName.text = event.name
-            binding.tvEventSummary.text = event.description
+            binding.tvEventSummary.text = HtmlCompat.fromHtml(
+                event.description,
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+            )
 
             Glide.with(binding.root.context)
                 .load(event.imageLogo)
@@ -49,7 +53,7 @@ class EventAdapter : ListAdapter<ListEventsItem, EventAdapter.EventViewHolder>(D
             }
 
             override fun areContentsTheSame(oldItem: ListEventsItem, newItem: ListEventsItem): Boolean {
-                return oldItem == newItem
+                return oldItem.id == newItem.id
             }
         }
     }
