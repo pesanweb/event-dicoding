@@ -3,9 +3,8 @@ package com.example.dicodingevent.ui
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.text.HtmlCompat
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.dicodingevent.DetailEventActivity
@@ -27,10 +26,6 @@ class EventAdapter : ListAdapter<ListEventsItem, EventAdapter.EventViewHolder>(D
     class EventViewHolder(private val binding: ItemEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: ListEventsItem) {
             binding.tvEventName.text = event.name
-            binding.tvEventSummary.text = HtmlCompat.fromHtml(
-                event.description,
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-            )
 
             Glide.with(binding.root.context)
                 .load(event.imageLogo)

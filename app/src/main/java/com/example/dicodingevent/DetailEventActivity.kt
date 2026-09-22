@@ -47,7 +47,7 @@ class DetailEventActivity : AppCompatActivity() {
                     binding.tvEventOwner.text = "Penyelenggara: ${event.ownerName}"
                     binding.tvEventTime.text = "Waktu: ${event.beginTime}"
 
-                    val sisaKuota = event.quota - event.registrant
+                    val sisaKuota = event.quota - event.registrants
                     binding.tvEventQuota.text = "Sisa Kuota: $sisaKuota"
 
                     binding.tvEventDescription.text = HtmlCompat.fromHtml(

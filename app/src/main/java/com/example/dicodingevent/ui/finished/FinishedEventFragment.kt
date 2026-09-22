@@ -6,20 +6,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.dicodingevent.data.retrofit.ApiConfig
 import com.example.dicodingevent.databinding.FragmentFinishedBinding
 import com.example.dicodingevent.ui.EventAdapter
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FinishedEventFragment : Fragment() {
 
     private var _binding: FragmentFinishedBinding? = null
     private val binding get() = _binding!!
     private lateinit var eventAdapter: EventAdapter
+    private lateinit var viewModel: FinishedViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,25 +36,19 @@ class FinishedEventFragment : Fragment() {
             adapter = eventAdapter
         }
 
-        fetchFinishedEvents()
-    }
+        viewModel = ViewModelProvider(this)[FinishedViewModel::class.java]
 
-    private fun fetchFinishedEvents() {
-        binding.loadingProgressBar.visibility = View.VISIBLE
-        lifecycleScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    ApiConfig.getApiService().getEvents(active = 0)
-                }
-                binding.loadingProgressBar.visibility = View.GONE
-                if (!response.error) {
-                    eventAdapter.submitList(response.listEvents)
-                } else {
-                    Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                binding.loadingProgressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), "Gagal memuat data: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+        viewModel.listEvents.observe(viewLifecycleOwner) { events ->
+            eventAdapter.submitList(events)
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.loadingProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            if (!message.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }
     }
