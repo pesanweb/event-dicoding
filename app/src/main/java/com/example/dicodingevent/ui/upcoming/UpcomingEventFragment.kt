@@ -51,7 +51,11 @@ class UpcomingEventFragment : Fragment() {
                 }
                 binding.loadingProgressBar.visibility = View.GONE
                 if (!response.error) {
-                    eventAdapter.submitList(response.listEvents)
+                    val events = response.listEvents
+                    eventAdapter.submitList(events)
+                    if (events.isEmpty()) {
+                        Toast.makeText(requireContext(), "Tidak ada event mendatang saat ini", Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
                 }
