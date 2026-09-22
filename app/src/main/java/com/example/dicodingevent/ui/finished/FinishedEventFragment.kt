@@ -1,4 +1,4 @@
-package com.example.dicodingevent.ui.reflow
+package com.example.dicodingevent.ui.finished
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.dicodingevent.databinding.FragmentReflowBinding
 
-class ReflowFragment : Fragment() {
+class FinishedEventFragment : Fragment() {
 
     private var _binding: FragmentReflowBinding? = null
 
@@ -23,7 +23,7 @@ class ReflowFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val reflowViewModel =
-            ViewModelProvider(this).get(ReflowViewModel::class.java)
+            ViewModelProvider(this).get(FinishedViewModel::class.java)
 
         _binding = FragmentReflowBinding.inflate(inflater, container, false)
         val root: View = binding.root

@@ -1,10 +1,10 @@
-package com.example.dicodingevent.ui.transform
+package com.example.dicodingevent.ui.upcoming
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class TransformViewModel : ViewModel() {
+class UpcomingEventViewModel : ViewModel() {
 
     private val _texts = MutableLiveData<List<String>>().apply {
         value = (1..16).mapIndexed { _, i ->

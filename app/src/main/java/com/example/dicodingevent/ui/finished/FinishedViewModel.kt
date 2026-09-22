@@ -1,10 +1,10 @@
-package com.example.dicodingevent.ui.reflow
+package com.example.dicodingevent.ui.finished
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class ReflowViewModel : ViewModel() {
+class FinishedViewModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is reflow Fragment"
