@@ -5,19 +5,29 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.dicodingevent.data.local.room.FavoriteEvent
+import com.example.dicodingevent.data.response.ListEventsItem
 import com.example.dicodingevent.data.retrofit.ApiConfig
 import com.example.dicodingevent.databinding.ActivityDetailEventBinding
+import com.example.dicodingevent.ui.DetailEventViewModel
+import com.example.dicodingevent.ui.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class DetailEventActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailEventBinding
+    private val detailViewModel: DetailEventViewModel by viewModels {
+        ViewModelFactory.getInstance(application)
+    }
+    private var currentEvent: ListEventsItem? = null
+    private var isFavorite = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,12 +40,38 @@ class DetailEventActivity : AppCompatActivity() {
         val eventId = intent.getIntExtra(EXTRA_EVENT_ID, -1)
         if (eventId != -1) {
             fetchDetailEvent(eventId)
+            
+            detailViewModel.getFavoriteEventById(eventId.toString()).observe(this) { favoriteEvent ->
+                isFavorite = (favoriteEvent != null)
+                if (isFavorite) {
+                    binding.fabFavorite.setImageResource(R.drawable.baseline_favorite_24)
+                } else {
+                    binding.fabFavorite.setImageResource(R.drawable.baseline_favorite_border_24)
+                }
+            }
+        }
+
+        binding.fabFavorite.setOnClickListener {
+            currentEvent?.let { event ->
+                val favoriteEvent = FavoriteEvent(
+                    id = event.id.toString(),
+                    name = event.name,
+                    mediaCover = event.imageLogo
+                )
+                if (isFavorite) {
+                    detailViewModel.delete(favoriteEvent)
+                    Toast.makeText(this, "Dihapus dari Favorite", Toast.LENGTH_SHORT).show()
+                } else {
+                    detailViewModel.insert(favoriteEvent)
+                    Toast.makeText(this, "Ditambahkan ke Favorite", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
     private fun fetchDetailEvent(id: Int) {
         binding.progressBar.visibility = View.VISIBLE
-        lifecycleScope.launch {
+        GlobalScope.launch(Dispatchers.Main) {
             try {
                 val response = withContext(Dispatchers.IO) {
                     ApiConfig.getApiService().getDetailEvent(id)
@@ -43,6 +79,7 @@ class DetailEventActivity : AppCompatActivity() {
                 binding.progressBar.visibility = View.GONE
                 if (!response.error) {
                     val event = response.event
+                    currentEvent = event
                     binding.tvEventName.text = event.name
                     binding.tvEventOwner.text = "Penyelenggara: ${event.ownerName}"
                     binding.tvEventTime.text = "Waktu: ${event.beginTime}"

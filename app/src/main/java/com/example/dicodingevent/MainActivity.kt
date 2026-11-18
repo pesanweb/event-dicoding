@@ -1,23 +1,34 @@
 package com.example.dicodingevent
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.navigation.NavigationView
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.appcompat.app.AppCompatActivity
 import com.example.dicodingevent.databinding.ActivityMainBinding
+import com.example.dicodingevent.ui.ViewModelFactory
+import com.example.dicodingevent.ui.settings.SettingsViewModel
+import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+
+    private val settingsViewModel: SettingsViewModel by viewModels {
+        ViewModelFactory.getInstance(application)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,10 +36,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        binding.appBarMain.fab?.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        applyTheme()
+
+        binding.appBarMain.fab?.setOnClickListener {
+            openEmailApp()
         }
 
         val navHostFragment =
@@ -38,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         binding.navView?.let {
             appBarConfiguration = AppBarConfiguration(
                 setOf(
-                    R.id.nav_home, R.id.nav_upcoming, R.id.nav_finished, R.id.nav_settings
+                    R.id.nav_upcoming, R.id.nav_finished, R.id.nav_settings
                 ),
                 binding.drawerLayout
             )
@@ -49,11 +60,34 @@ class MainActivity : AppCompatActivity() {
         binding.appBarMain.contentMain.bottomNavView?.let {
             appBarConfiguration = AppBarConfiguration(
                 setOf(
-                    R.id.nav_home, R.id.nav_upcoming, R.id.nav_finished
+                    R.id.nav_upcoming, R.id.nav_finished, R.id.navigation_favorite
                 )
             )
             setupActionBarWithNavController(navController, appBarConfiguration)
             it.setupWithNavController(navController)
+        }
+    }
+
+    private fun applyTheme() {
+        settingsViewModel.getThemeSettings().observe(this) { isDarkModeActive ->
+            AppCompatDelegate.setDefaultNightMode(
+                if (isDarkModeActive) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
+            )
+        }
+    }
+
+    private fun openEmailApp() {
+        val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+        }
+        try {
+            startActivity(emailIntent)
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, getString(R.string.no_email_app), Toast.LENGTH_SHORT).show()
         }
     }
 
