@@ -1,13 +1,14 @@
 package com.example.dicodingevent
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.dicodingevent.data.local.room.FavoriteEvent
 import com.example.dicodingevent.data.response.ListEventsItem
@@ -16,7 +17,6 @@ import com.example.dicodingevent.databinding.ActivityDetailEventBinding
 import com.example.dicodingevent.ui.DetailEventViewModel
 import com.example.dicodingevent.ui.ViewModelFactory
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -34,13 +34,13 @@ class DetailEventActivity : AppCompatActivity() {
         binding = ActivityDetailEventBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.title = "Detail Event"
+        supportActionBar?.title = getString(R.string.detail_event)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val eventId = intent.getIntExtra(EXTRA_EVENT_ID, -1)
         if (eventId != -1) {
             fetchDetailEvent(eventId)
-            
+
             detailViewModel.getFavoriteEventById(eventId.toString()).observe(this) { favoriteEvent ->
                 isFavorite = (favoriteEvent != null)
                 if (isFavorite) {
@@ -60,10 +60,10 @@ class DetailEventActivity : AppCompatActivity() {
                 )
                 if (isFavorite) {
                     detailViewModel.delete(favoriteEvent)
-                    Toast.makeText(this, "Dihapus dari Favorite", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.removed_from_favorite), Toast.LENGTH_SHORT).show()
                 } else {
                     detailViewModel.insert(favoriteEvent)
-                    Toast.makeText(this, "Ditambahkan ke Favorite", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.added_to_favorite), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -71,7 +71,7 @@ class DetailEventActivity : AppCompatActivity() {
 
     private fun fetchDetailEvent(id: Int) {
         binding.progressBar.visibility = View.VISIBLE
-        GlobalScope.launch(Dispatchers.Main) {
+        lifecycleScope.launch {
             try {
                 val response = withContext(Dispatchers.IO) {
                     ApiConfig.getApiService().getDetailEvent(id)
@@ -81,11 +81,11 @@ class DetailEventActivity : AppCompatActivity() {
                     val event = response.event
                     currentEvent = event
                     binding.tvEventName.text = event.name
-                    binding.tvEventOwner.text = "Penyelenggara: ${event.ownerName}"
-                    binding.tvEventTime.text = "Waktu: ${event.beginTime}"
+                    binding.tvEventOwner.text = getString(R.string.event_owner, event.ownerName)
+                    binding.tvEventTime.text = getString(R.string.event_time, event.beginTime)
 
                     val sisaKuota = event.quota - event.registrants
-                    binding.tvEventQuota.text = "Sisa Kuota: $sisaKuota"
+                    binding.tvEventQuota.text = getString(R.string.event_quota, sisaKuota)
 
                     binding.tvEventDescription.text = HtmlCompat.fromHtml(
                         event.description,
@@ -97,7 +97,7 @@ class DetailEventActivity : AppCompatActivity() {
                         .into(binding.imgEventLogo)
 
                     binding.btnRegister.setOnClickListener {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(event.link))
+                        val intent = Intent(Intent.ACTION_VIEW, event.link.toUri())
                         startActivity(intent)
                     }
                 } else {
@@ -105,7 +105,11 @@ class DetailEventActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 binding.progressBar.visibility = View.GONE
-                Toast.makeText(this@DetailEventActivity, "Gagal memuat detail: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@DetailEventActivity,
+                    getString(R.string.failed_load_detail, e.localizedMessage),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

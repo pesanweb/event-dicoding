@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.dicodingevent.data.response.ListEventsItem
 import com.example.dicodingevent.databinding.FragmentFavoriteBinding
 import com.example.dicodingevent.ui.ViewModelFactory
-import com.example.dicodingevent.ui.adapter.EventAdapter
+import com.example.dicodingevent.ui.EventAdapter
 
 class FavoriteFragment : Fragment() {
 
